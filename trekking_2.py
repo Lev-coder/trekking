@@ -22,11 +22,16 @@ class Product():
         self.fats = math.floor(self.fats)
         return self
 
-def calc_product_attributes(product,weight):
-    calories = (product.calories*weight )/100
-    protein = (product.protein*weight )/100
-    fats = (product.fats*weight )/100
-    carbohydrate = (product.carbohydrate*weight )/100
+class MenuProduct():
+    def __init__(self,name,weight):
+        self.name = name 
+        self.weight = weight
+
+def calc_product_attributes(product,weight,weight_standard = 100):
+    calories = (product.calories*weight )/weight_standard
+    protein = (product.protein*weight )/weight_standard
+    fats = (product.fats*weight )/weight_standard
+    carbohydrate = (product.carbohydrate*weight )/weight_standard
 
     return Product(calories,protein,fats,carbohydrate)
 
@@ -49,30 +54,30 @@ def get_dict_product(wb):
         dict_products[name] = Product(calories,protein,fats,carbohydrate)
     return dict_products
 
-def get_dict_menu(wd):
+def get_list_menu(wd):
     trekking = wb.sheet_by_index(1)
-    dict_menu = {}
+    list_menu = []
     for row in range(1,trekking.nrows):
 
         name = trekking.row_values(row)[0]
         weight = trekking.row_values(row)[1]
 
-        dict_menu[name] = weight
-    return dict_menu
+        list_menu.append( MenuProduct(name,weight) )
+    return list_menu
 
 wb = xlrd.open_workbook('trekking2.xlsx')
 
 dict_products = get_dict_product(wb)
-dict_menu = get_dict_menu(wb)
+list_menu = get_list_menu(wb)
 
-sum_product = Product()
-for product in dict_products:
-    if product in dict_menu:
-        sum_product += calc_product_attributes(dict_products[product],dict_menu[product])
-    
-sum_product.floor_attributes()
+sum_products_attributes = Product()
+for product in list_menu:
+    if product.name in dict_products:
+        sum_products_attributes += calc_product_attributes(dict_products[product.name],product.weight)
 
-print("{} {} {} {}".format(sum_product.calories,
-                        sum_product.protein,
-                        sum_product.fats,
-                        sum_product.carbohydrate))
+sum_products_attributes.floor_attributes()
+
+print("{} {} {} {}".format(sum_products_attributes.calories,
+                        sum_products_attributes.protein,
+                        sum_products_attributes.fats,
+                        sum_products_attributes.carbohydrate))
